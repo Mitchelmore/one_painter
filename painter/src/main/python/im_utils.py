@@ -155,10 +155,12 @@ def gen_composite(annot_dir, photo_dir, comp_dir, fname, ext='.jpg'):
         comp_right = np.copy(background)
         comp_right[annot > 0] = [255, 0, 0]
         # if width is more than 20% bigger than height then vstack
-        if background.shape[1] > background.shape[0] * 1.2:
-            comp = np.vstack((background, comp_right))
-        else:
-            comp = np.hstack((background, comp_right))
+        #if background.shape[1] > background.shape[0] * 1.2:
+        #    comp = np.vstack((background, comp_right))
+        #else:
+        #    comp = np.hstack((background, comp_right))
+        # always stack vertically
+        comp = np.vstack((background, comp_right))
         assert comp.dtype == np.uint8
         with warnings.catch_warnings():
             # avoid low constrast warning.
