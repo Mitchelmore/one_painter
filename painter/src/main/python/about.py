@@ -717,7 +717,7 @@ Public License instead of this License.  But first, please read
 """
 
 class AboutWindow(QtWidgets.QWidget):
-    """ Show some info about RootPainter """
+    """ Show some info about OnePainter """
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -728,11 +728,11 @@ class AboutWindow(QtWidgets.QWidget):
         text_edit = QtWidgets.QTextEdit()
         layout.addWidget(text_edit)
         about_text = """
-        RootPainter is for the rapid training of deep neural
+        OnePainter is for the rapid training of deep neural
         networks for use in biological image analysis.
         <br />
         <br />
-        If you find RootPainter useful in your research then please cite the published 
+        If you find OnePainter useful in your research then please cite the published 
         paper: 'RootPainter: Deep Learning Segmentation of Biological Images with Corrective Annotation'
         <br />
         The paper is now available at the following URL:
@@ -762,7 +762,7 @@ class AboutWindow(QtWidgets.QWidget):
         text_edit.verticalScrollBar().setValue(0)
         self.text_edit = text_edit
         layout.addWidget(text_edit)
-        self.setWindowTitle("About RootPainter")
+        self.setWindowTitle("About OnePainter")
         QtCore.QTimer.singleShot(100, self.adjust_size)
 
     def adjust_size(self):

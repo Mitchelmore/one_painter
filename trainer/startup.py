@@ -36,7 +36,7 @@ def startup_setup(settings_path):
         else:
             # Or if the settings file doesn't exist get a sync_dir
             # from the user and save it to a settings file.
-            sync_dir = input("Please specify RootPainter sync directory")
+            sync_dir = input("Please specify OnePainter sync directory")
             sync_dir = os.path.expanduser(sync_dir)
             sync_dir_abs = os.path.abspath(sync_dir)
             with open(settings_path, 'w') as json_file:
@@ -59,7 +59,7 @@ def ensure_required_folders_exist(sync_dir):
         print('Creating', sync_dir_abs)
         os.mkdir(sync_dir_abs)
 
-    # RootPainter requires some folders to run. If they aren't already
+    # OnePainter requires some folders to run. If they aren't already
     # in the sync_dir then create them
     required_subfolders = ['projects', 'datasets', 'instructions']
     for subfolder in required_subfolders:

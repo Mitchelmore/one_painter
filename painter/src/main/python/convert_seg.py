@@ -40,7 +40,7 @@ class ConvertThread(QtCore.QThread):
         for i, f in enumerate(seg_fnames):
             self.progress_change.emit(i+1, len(seg_fnames))
             if os.path.isfile(os.path.join(self.seg_dir, os.path.splitext(f)[0] + '.png')):
-                # Load RootPainter seg blue channel and invert.
+                # Load OnePainter seg blue channel and invert.
                 seg = imread(os.path.join(self.seg_dir, f))
                 converted_seg = self.conversion_function(seg)
                 imsave(os.path.join(self.out_dir, f),
@@ -49,7 +49,7 @@ class ConvertThread(QtCore.QThread):
 
 
 def convert_seg_to_rve(seg):
-    # Load RootPainter blue channel and invert.
+    # Load OnePainter blue channel and invert.
     rve_seg = (seg[:, :, 2] == 0)
     return img_as_ubyte(rve_seg)
 

@@ -37,8 +37,8 @@ def is_image(fname):
 
 
 def all_image_paths_in_dir(dir_path):
-    root_dir = os.path.abspath(dir_path)
-    all_paths = glob.iglob(root_dir + '/**/*', recursive=True)
+    one_dir = os.path.abspath(dir_path)
+    all_paths = glob.iglob(one_dir + '/**/*', recursive=True)
     image_paths = []
     for p in all_paths:
         name = os.path.basename(p)

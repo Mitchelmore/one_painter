@@ -64,13 +64,13 @@ use_plugin("pil")
 
 Image.MAX_IMAGE_PIXELS = None
 
-class RootPainter(QtWidgets.QMainWindow):
+class OnePainter(QtWidgets.QMainWindow):
 
     closed = QtCore.pyqtSignal()
 
     def __init__(self, sync_dir):
         super().__init__()
-        # give the main RootPainter window an Icon.
+        # give the main OnePainter window an Icon.
         app_dir = os.path.dirname(os.path.realpath(__file__))
         self.setWindowIcon(QtGui.QIcon(os.path.join(app_dir, 'icons/linux/128.png')))
 
@@ -447,7 +447,7 @@ class RootPainter(QtWidgets.QMainWindow):
         create_dataset_btn.clicked.connect(show_create_dataset)
         layout.addWidget(create_dataset_btn)
 
-        self.setWindowTitle("RootPainter")
+        self.setWindowTitle("OnePainter")
         self.resize(layout.sizeHint())
 
     def specify_sync_directory(self):
@@ -456,7 +456,7 @@ class RootPainter(QtWidgets.QMainWindow):
             sync directory.
 
         """
-        settings_path = os.path.join(Path.home(), 'root_painter_settings.json')
+        settings_path = os.path.join(Path.home(), 'one_painter_settings.json')
         dir_path = QtWidgets.QFileDialog.getExistingDirectory()
         if dir_path:
             with open(settings_path, 'w') as json_file:
@@ -596,7 +596,7 @@ class RootPainter(QtWidgets.QMainWindow):
         license_btn.triggered.connect(self.show_license_window)
         about_menu.addAction(license_btn)
 
-        about_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'), 'RootPainter', self)
+        about_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'), 'OnePainter', self)
         about_btn.triggered.connect(self.show_about_window)
         about_menu.addAction(about_btn)
 
@@ -610,7 +610,7 @@ class RootPainter(QtWidgets.QMainWindow):
 
     def update_window_title(self):
         proj_dirname = os.path.basename(self.proj_location)
-        self.setWindowTitle(f"RootPainter {proj_dirname}"
+        self.setWindowTitle(f"OnePainter {proj_dirname}"
                             f" {os.path.basename(self.image_path)}")
 
     def init_active_project_ui(self):

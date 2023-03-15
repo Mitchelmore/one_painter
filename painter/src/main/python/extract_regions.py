@@ -66,7 +66,7 @@ class ExtractRegionsWidget(BaseExtractWidget):
         info_label.setFixedWidth(600)
         info_label.setText("Extracted region properties include x, y, diameter, area,"
                            " perimeter and eccentricity. For extremely large images (over"
-                           " 5000x5000) eccentricity calculation may crash RootPainter.")
+                           " 5000x5000) eccentricity calculation may crash OnePainter.")
 
         info_label.setWordWrap(True)
         self.layout.addWidget(info_label)

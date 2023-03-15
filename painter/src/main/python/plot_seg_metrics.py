@@ -351,7 +351,7 @@ class MetricsPlot:
         self.plot_window = QtGraphMetricsPlot(
             fnames, metrics_list, rolling_n=30)
         self.plot_window.setWindowTitle(
-            f'RootPainter Metrics Plot: {os.path.basename(csv_fpath)}')
+            f'OnePainter Metrics Plot: {os.path.basename(csv_fpath)}')
         self.plot_window.show()
         
 
@@ -383,7 +383,7 @@ class QtGraphMetricsPlot(QtWidgets.QMainWindow):
     def __init__(self, fnames, metrics_list, rolling_n, selected_fname=None):
         super().__init__()
 
-        self.setWindowTitle('RootPainter: Metrics Plot')
+        self.setWindowTitle('OnePainter: Metrics Plot')
 
         self.central_widget = QtWidgets.QWidget()
         self.layout = QtWidgets.QGridLayout()
@@ -563,7 +563,7 @@ class QtGraphMetricsPlot(QtWidgets.QMainWindow):
         self.render_data()
 
     def set_highlight_point(self, highlight_point_fname):
-        # called from update_file in root_painter.py
+        # called from update_file in one_painter.py
         self.highlight_point_fname = highlight_point_fname
         if self.highlight_point_fname in self.fnames:
 
@@ -671,7 +671,7 @@ class QtGraphMetricsPlot(QtWidgets.QMainWindow):
         l = pg.GraphicsLayout(border=None)
         l.setContentsMargins(10, 10, 10, 10)
         view.setCentralItem(l)
-        view.setWindowTitle('RootPainter: Segmentation Metrics')
+        view.setWindowTitle('OnePainter: Segmentation Metrics')
         view.resize(800, 600)
         l2 = l.addLayout()
         l2.setContentsMargins(0, 0, 0, 0)

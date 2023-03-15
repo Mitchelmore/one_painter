@@ -39,14 +39,14 @@ mkdir -p dist/ubuntu_setup/usr/local/bin
 
 # the /usr/share/applications folder is required so the deb file unpacks the an application shortcut into the correct location.
 mkdir -p dist/ubuntu_setup/usr/share/applications
-cp src/build/RootPainter.desktop dist/ubuntu_setup/usr/share/applications
+cp src/build/OnePainter.desktop dist/ubuntu_setup/usr/share/applications
 
 
 mkdir dist/ubuntu_setup/DEBIAN
 cp -r src/build/DEBIAN_control dist/ubuntu_setup/DEBIAN/control
-cp -r dist/RootPainter dist/ubuntu_setup/usr/local/bin/RootPainter
-cp -r src/main/icons dist/ubuntu_setup/usr/local/bin/RootPainter/icons
+cp -r dist/OnePainter dist/ubuntu_setup/usr/local/bin/OnePainter
+cp -r src/main/icons dist/ubuntu_setup/usr/local/bin/OnePainter/icons
 
 dpkg-deb --build dist/ubuntu_setup
-mv dist/ubuntu_setup.deb dist/RootPainter.deb
-echo 'output debian package to dist/RootPainter.deb'
+mv dist/ubuntu_setup.deb dist/OnePainter.deb
+echo 'output debian package to dist/OnePainter.deb'

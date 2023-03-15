@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=OnePainter
+Comment=OnePainter
+Exec=/usr/local/bin/OnePainter/OnePainter
+Terminal=false
+Type=Application
+Icon=/usr/local/bin/OnePainter/icons/icon.svg

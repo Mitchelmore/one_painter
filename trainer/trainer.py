@@ -61,7 +61,7 @@ class Trainer():
             self.sync_dir = sync_dir
         else:
             self.settings_path = os.path.join(Path.home(),
-                                              'root_painter_settings.json')
+                                              'one_painter_settings.json')
             startup_setup(self.settings_path)
             self.sync_dir = Path(json.load(open(self.settings_path, 'r'))['sync_dir'])
 
@@ -380,7 +380,7 @@ class Trainer():
         """
         in_dir = segment_config['dataset_dir']
         seg_dir = segment_config['seg_dir']
-        format_str = 'RootPainter Default (.png)'
+        format_str = 'OnePainter Default (.png)'
         if 'format' in segment_config:
             format_str = segment_config['format']
         
@@ -472,7 +472,7 @@ class Trainer():
 
                 if format_str == 'RhizoVision Explorer (.png)':
                     # RVE needs segmentation in black and white
-                    # Load RootPainter blue channel and invert.
+                    # Load OnePainter blue channel and invert.
                     seg_out = (seg_out == 0)
                 elif npy:
                     seg_out = seg_out.astype(bool)

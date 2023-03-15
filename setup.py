@@ -6,19 +6,19 @@ current_dir = Path(__file__).parent
 long_description = io.open(current_dir / "README.md", mode="r", encoding="utf-8").read()
 
 setup(
-  name = 'root_painter_trainer',
-  package_dir = {'root_painter_trainer': 'trainer'},
-  packages = ['root_painter_trainer'],
+  name = 'one_painter_trainer',
+  package_dir = {'one_painter_trainer': 'trainer'},
+  packages = ['one_painter_trainer'],
   version = '0.2.25.3',
   license = 'GPL-2.0', 
-  description = 'Trainer (server component) for RootPainter',
+  description = 'Trainer (server component) for OnePainter',
   long_description=long_description,
   long_description_content_type='text/markdown',
-  author = 'Abraham George Smith',
-  url = 'https://github.com/Abe404/root_painter',
+  author = 'Abraham George Smith & Cathy Mitchelmore',
+  url = 'https://github.com/Mitchelmore/one_painter',
   entry_points={
     'console_scripts': [
-      'start-trainer = root_painter_trainer:start',
+      'start-trainer = one_painter_trainer:start',
     ]
   },
   install_requires=[

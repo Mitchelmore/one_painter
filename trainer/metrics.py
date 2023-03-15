@@ -1,5 +1,5 @@
 """
-Computing metrics on output segmentations for root images
+Computing metrics on output segmentations for tumor images
 
 Copyright (C) 2019, 2020 Abraham George Smith
 
