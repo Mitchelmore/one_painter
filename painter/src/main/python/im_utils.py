@@ -139,7 +139,7 @@ def gen_composite(annot_dir, photo_dir, comp_dir, fname, ext='.jpg'):
             background = resize(background,
                                 (background.shape[0]//2,
                                  background.shape[1]//2, 3))
-            annot = resize(annot, (annot.shape[0]//2, annot.shape[1]//2, 3))
+            annot = resize(annot, (annot.shape[0]//2, annot.shape[1]//2, annot.shape[2]))
         # if the annotation has 4 channels (that means alpha included)
         if len(annot.shape) and annot.shape[2] == 4:
             # then save alpha channel
