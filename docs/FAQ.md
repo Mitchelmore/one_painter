@@ -11,6 +11,7 @@
   * [Question - I already have a trained model. Do I still need a GPU for segmentation?](#question---i-already-have-a-trained-model-do-i-still-need-a-gpu-for-segmentation)
 
 <!---
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 -->
 
 
