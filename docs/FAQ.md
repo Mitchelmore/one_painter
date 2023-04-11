@@ -6,19 +6,24 @@
   * [Question - Should I let training finish?](#question----should-i-let-training-finish)
   * [Question - How do I decide when the model is good enough?](#question---how-do-i-decide-when-the-model-is-good-enough)
   * [Question - Why is the segmentation not loading?](#question---why-is-the-segmentation-not-loading)
- 
+  * [Question - On ubuntu I get an error related to xcb](#question---on-ubuntu-i-get-an-error-related-to-xcb)
+  * [Question - How can I use RootPainter for a multiclass segmentation task?](#question---how-can-i-use-rootpainter-for-a-multiclass-segmentation-task)
+  * [Question - I already have a trained model. Do I still need a GPU for segmentation?](#question---i-already-have-a-trained-model-do-i-still-need-a-gpu-for-segmentation)
+
+<!---
+-->
 
 
 #### Question - [How do I skip to images?](https://github.com/Abe404/root_painter/issues/59)
-I wanted to skip back to the first few images I've used to show the annotation approach/progress. Is there any easier way to do it than pressing back and waiting for each image to load?
 
-#### Answer:
-With the project open, go to the extras menu and view metrics plot. Then click on the image point in the metrics plot and it will take you to the corresponding image in the viewer.
+If you want to skip back to the first few images it is possible to do this with the back/previous button but for large projects this can take a while as you will need to wait for each image to load. A more efficient method is possible using the metrics plot.
+
+With the project open, go to the extras menu and click on view metrics plot. Then click on the image point in the metrics plot and it will take you to the corresponding image in the viewer.
 
 #### Question -  Should I let training finish?
-Should I let the training go on until it reaches 60 epochs out of 60 with no progress? Does it become more robust by doing this?
 
-#### Answer:
+If you stop annotating and let  training continue it will eventually reach 60 epochs out of 60 with no progress. It may not be easy for you to do this with your hardware (the free version of colab, for example, has time contraints). You may be wondering if leaving training to finish is essential and if it makes the model more robust.
+
 We experimented with this in the original study. See [Figure 8](https://nph.onlinelibrary.wiley.com/doi/full/10.1111/nph.18387#nph18387-fig-0008). In short, we found that letting the model train to completion can provide some marginal benefits in some cases.
 
 I suspect this is hardware specific. If you have slow hardware (such as google colab) then it's more likely that the hardware is a bottleneck and it is training time (rather than amount of annotation) that is the main bottleneck preventing performance improvements. In this case letting the model train for a bit longer may provide more benefits.
@@ -28,7 +33,6 @@ RootPainter provides an interactive-machine-learning experience where what you s
 
 #### Question - How do I decide when the model is good enough?
 
-#### Answer
 
 My personal recommendation is to use the metrics plot that is available from the extras menu. When you annotate images in the RootPainter interface, if you annotate all the error (or approximately all the error) in each image then you have a measure of the model performance/generalisation to new data.
 
@@ -79,4 +83,41 @@ Note: Sometimes due to slow sync time it will appear after a delay, so wait a co
 
 
 Hopefully, even if it doesn’t solve the problem, these instructions will help you get more information that will help us figure out what is going wrong. If you think you have found a bug in the software then feel free to report an issue (https://github.com/Abe404/root_painter/issues) 
+
+
+
+#### Question - On ubuntu I get an error related to xcb
+
+The error message may be similar to the following:
+```
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: eglfs, linuxfb, minimal, minimalegl, offscreen, vnc, wayland-egl, wayland, wayland-xcomposite-egl, wayland-xcomposite-glx, webgl, xcb.
+```
+
+As outlined in this [forum discussion answer](https://forum.qt.io/topic/93247/qt-qpa-plugin-could-not-load-the-qt-platform-plugin-xcb-in-even-though-it-was-found/20?_=1678962734314&lang=en-GB) installing libxcb-xinerama0 appears to fix the problem. Which can be done with the following command:
+
+```
+sudo apt-get install libxcb-xinerama0
+```
+
+
+#### Question - How can I use RootPainter for a multiclass segmentation task? 
+
+It's possible to train a binary single class model for each of your classes. A more experimental (developer friendly) multiclass version of RootPainter is also availale in the branch named 'multiclass'. When more testing has been done, I will make it available in a more user-friendly client installer.
+
+A [colab notebook](https://colab.research.google.com/drive/1n1Iku3FwoLI0ImLTRQmMGawRyUU4YEJN) is available that runs the multiclass version of RootPainter.
+Classes can be specified when creating a project. Each class that is specified implicity has it's own background, thus a backround class does not need to be explicitly specified. Foreground and background annotation should be assigned correctively for each class for each image.
+
+The multiclass client can be ran from source by using git to clone the repo and swith to the multiclass branch.
+```
+git clone --single-branch --branch multiclass https://github.com/Abe404/root_painter.git
+```
+
+
+#### Question - I already have a trained model. Do I still need a GPU for segmentation?
+
+Yes, a GPU is required for both training and segmentation. Other functionality, such as generating composites, converting segmentations for Rhizivision explorer and extracting measurements does not require a powerful GPU and can be computed using the client only.
+
 
