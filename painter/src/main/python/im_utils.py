@@ -152,10 +152,13 @@ def gen_composite(annot_dir, photo_dir, comp_dir, fname, ext='.jpg'):
             annot[alpha_channel == 0] = [0, 0, 0]
 
         annot = rgb2gray(annot)
-        annot = img_as_ubyte(annot)
-        background = img_as_ubyte(background)
+        #annot = img_as_ubyte(annot)
+        #background = img_as_ubyte(background)
         comp_right = np.copy(background)
-        comp_right[annot > 0] = [255, 0, 0]
+        comp_right = img_as_float(comp_right)
+        transp = comp_right * 0.3 + [0.7, 0, 0]
+        comp_right[annot > 0] = transp[annot > 0]
+        comp_right = img_as_ubyte(comp_right)
         # if width is more than 20% bigger than height then vstack
         #if background.shape[1] > background.shape[0] * 1.2:
         #    comp = np.vstack((background, comp_right))
