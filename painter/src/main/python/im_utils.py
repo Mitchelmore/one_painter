@@ -117,9 +117,9 @@ def save_corrected_segmentation(annot_fpath, seg_dir, output_dir):
 
 
 def gen_composite(annot_dir, photo_dir, comp_dir, fname, ext='.jpg'):
-    """ for review.
-    Output the pngs with the annotation overlaid next to it.
-    should make it possible to identify errors. """
+    """ 
+    Outputs the image together with an image-mask composite below it, where the mask 
+    is transparent. Should make it possible to identify errors."""
     out_path = os.path.join(comp_dir, fname.replace('.png', ext))
     if not os.path.isfile(out_path):
         name_no_ext = os.path.splitext(fname)[0]
@@ -153,7 +153,7 @@ def gen_composite(annot_dir, photo_dir, comp_dir, fname, ext='.jpg'):
 
         annot = rgb2gray(annot)
         #annot = img_as_ubyte(annot)
-        #background = img_as_ubyte(background)
+        background = img_as_ubyte(background)
         comp_right = np.copy(background)
         comp_right = img_as_float(comp_right)
         transp = comp_right * 0.3 + [0.7, 0, 0]
