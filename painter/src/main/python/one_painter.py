@@ -892,7 +892,7 @@ class OnePainter(QtWidgets.QMainWindow):
                 msg.setText(output)
                 msg.exec_()
                 self.original_image_dir = QtWidgets.QFileDialog.getExistingDirectory()
-                if not original_image_dir:
+                if not self.original_image_dir:
                     return
                 else:
                     proj_settings['original_image_dir'] = self.original_image_dir
@@ -981,7 +981,7 @@ class OnePainter(QtWidgets.QMainWindow):
         length_btn.triggered.connect(show_extract_length)
         measurements_menu.addAction(length_btn)
 
-        # region props
+        # region_props
         region_props_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'),
                                              'Extract region properties', self)
         def show_extract_region_props():
