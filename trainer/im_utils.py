@@ -30,9 +30,8 @@ from skimage import color
 from skimage.exposure import rescale_intensity
 from skimage.io import imread, imsave
 from file_utils import ls
-from skimage.morphology import erosion, dilation
 from skimage.measure import label, regionprops_table
-from scipy.ndimage import binary_fill_holes
+from scipy.ndimage import binary_erosion, binary_dilation, binary_fill_holes
 
 
 def is_photo(fname):
@@ -271,15 +270,6 @@ def load_image(photo_path):
         
     return photo
 
-# Function for repeating morphological operations
-def multi_de(im, n_dil, n_ero):
-    img = im.copy()
-    for i in range(n_dil):
-        img = dilation(img)
-    for i in range(n_ero):
-        img = erosion(img)
-    return img
-
 # Function for connected components on 2D numpy arrays, returns image with num-largest components
 def largest(im, num):
     img = np.zeros(im.shape) 
@@ -301,8 +291,8 @@ def post_process(segment, num):
     Output:
         largest connected component(s), where small internal holes are filled in.
     """
-    img = multi_de(segment, 3, 0)
+    img = binary_dilation(segment, iterations=3)
     img = largest(img, num)
-    img = multi_de(img, 0, 3)
+    img = binary_erosion(img, iterations=3)
     img = binary_fill_holes(img)
     return img
