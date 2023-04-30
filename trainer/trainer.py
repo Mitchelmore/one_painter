@@ -47,6 +47,7 @@ from im_utils import is_photo, load_image, save_then_move
 from file_utils import ls
 from startup import startup_setup, ensure_required_folders_exist
 from unet import get_valid_patch_sizes
+from im_utils import post_process
 
 class Trainer():
 
@@ -380,7 +381,7 @@ class Trainer():
         """
         in_dir = segment_config['dataset_dir']
         seg_dir = segment_config['seg_dir']
-        format_str = 'OnePainter Default (.png)'
+        format_str = 'One-segment results (.png)'
         if 'format' in segment_config:
             format_str = segment_config['format']
         
@@ -477,10 +478,16 @@ class Trainer():
                 elif npy:
                     seg_out = seg_out.astype(bool)
                 else:
+                    if format_str == 'One-segment results (.png)':
+                        # Get largest connected component and fill in
+                        seg_out = post_process(seg_out, 1)
+                    elif format_str == 'Two-segment results (.png)':
+                        # Get 2 largest connected components and fill in
+                        seg_out = post_process(seg_out, 2)
                     # default output is PNG with alpha channel
                     seg_alpha = np.zeros((seg_out.shape[0], seg_out.shape[1], 4))
                     seg_alpha[seg_out > 0] = [0, 1.0, 1.0, 0.7]
-                    # Conver to uint8 to save as png without warning
+                    # Convert to uint8 to save as png without warning
                     seg_out  = (seg_alpha * 255).astype(np.uint8)
 
 
