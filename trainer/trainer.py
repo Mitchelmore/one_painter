@@ -381,7 +381,8 @@ class Trainer():
         """
         in_dir = segment_config['dataset_dir']
         seg_dir = segment_config['seg_dir']
-        format_str = 'One-segment results (.png)'
+        # RootPainter default
+        format_str = 'All-segment results (.png)'
         if 'format' in segment_config:
             format_str = segment_config['format']
         

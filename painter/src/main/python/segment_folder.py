@@ -129,12 +129,12 @@ class SegmentFolderWidget(QtWidgets.QWidget):
         layout.addWidget(specify_model_btn)
 
         format_label = QtWidgets.QLabel()
-        format_label.setText("Segmentation Format: One-segment results (.png)")
+        format_label.setText("Selected Output: One-segment results (.png)")
         layout.addWidget(format_label)
         self.format_label = format_label
         self.format_dropdown = QtWidgets.QComboBox()
         self.format_dropdown.addItems(['One-segment results (.png)', 'Two-segment results (.png)', 
-                                       'All-segment results (.png)', 'RhizoVision Explorer (.png)'])
+                                       'All-segment results (.png)', 'RhizoVision Explorer format (.png)'])
         # nobody needs numpy yet
         # self.format_dropdown.addItems(['OnePainter Default (.png)', 'RhizoVision Explorer (.png)', 'Numpy Compressed (.npz)'])
         self.format_dropdown.currentIndexChanged.connect(self.format_selection_change)
@@ -154,7 +154,7 @@ class SegmentFolderWidget(QtWidgets.QWidget):
         self.submit_btn = submit_btn
 
     def format_selection_change(self, _):
-        self.format_label.setText("Segmentation Format: " + self.format_dropdown.currentText())
+        self.format_label.setText("Selected Output: " + self.format_dropdown.currentText())
 
     def validate(self):
         if not self.input_dir:

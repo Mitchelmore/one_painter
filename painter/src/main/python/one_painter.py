@@ -507,17 +507,23 @@ class OnePainter(QtWidgets.QMainWindow):
         comp_btn.triggered.connect(self.show_extract_comp)
         extras_menu.addAction(comp_btn)
 
-        conv_to_rve_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'),
-                                            'Convert segmentations for RhizoVision Explorer',
+        conv_seg_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'),
+                                            'Convert segmentations to masks or annotations',
                                              self)
-        conv_to_rve_btn.triggered.connect(self.show_conv_to_rve)
-        extras_menu.addAction(conv_to_rve_btn)
+        conv_seg_btn.triggered.connect(self.show_conv_seg)
+        extras_menu.addAction(conv_seg_btn)
 
-        conv_to_annot_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'),
-                                            'Convert segmentations to annotations',
-                                             self)
-        conv_to_annot_btn.triggered.connect(self.show_conv_to_annot)
-        extras_menu.addAction(conv_to_annot_btn)
+        # conv_to_rve_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'),
+        #                                     'Convert segmentations for RhizoVision Explorer',
+        #                                      self)
+        # conv_to_rve_btn.triggered.connect(self.show_conv_to_rve)
+        # extras_menu.addAction(conv_to_rve_btn)
+
+        # conv_to_annot_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'),
+        #                                     'Convert segmentations to annotations',
+        #                                      self)
+        # conv_to_annot_btn.triggered.connect(self.show_conv_to_annot)
+        # extras_menu.addAction(conv_to_annot_btn)
 
         specify_sync_dir_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'),
                                                  'Specify sync directory',
@@ -995,19 +1001,23 @@ class OnePainter(QtWidgets.QMainWindow):
         self.extract_comp_widget = ExtractCompWidget()
         self.extract_comp_widget.show()
 
-    def show_conv_to_rve(self):
-        """ show window to convert segmentations
-            to RhizoVision Explorer compatible format """
-        self.convert_to_rve_widget = ConvertSegWidget(
-            convert_seg_to_rve, 'RhizoVision Explorer compatible format')
+    def show_conv_seg(self):
+        self.convert_to_rve_widget = ConvertSegWidget()
         self.convert_to_rve_widget.show()
 
-    def show_conv_to_annot(self):
-        """ show window to convert segmentations
-            to annotations"""
-        self.convert_to_annot_widget = ConvertSegWidget(
-            convert_seg_to_annot, 'annotations')
-        self.convert_to_annot_widget.show()
+    # def show_conv_to_rve(self):
+    #     """ show window to convert segmentations
+    #         to RhizoVision Explorer compatible format """
+    #     self.convert_to_rve_widget = ConvertSegWidget(
+    #         convert_seg_to_rve, 'RhizoVision Explorer compatible format')
+    #     self.convert_to_rve_widget.show()
+
+    # def show_conv_to_annot(self):
+    #     """ show window to convert segmentations
+    #         to annotations"""
+    #     self.convert_to_annot_widget = ConvertSegWidget(s
+    #         convert_seg_to_annot, 'annotations')
+    #     self.convert_to_annot_widget.show()
 
     def stop_training(self):
         self.info_label.setText("Stopping training...")

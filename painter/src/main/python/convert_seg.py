@@ -48,8 +48,13 @@ class ConvertThread(QtCore.QThread):
         self.done.emit()
 
 
+def convert_seg_to_bw(seg):
+    # Load OnePainter blue channel (white is foreground).
+    bw_seg = seg[:, :, 2]
+    return img_as_ubyte(bw_seg)
+
 def convert_seg_to_rve(seg):
-    # Load OnePainter blue channel and invert.
+    # Load OnePainter blue channel and invert (white is background).
     rve_seg = (seg[:, :, 2] == 0)
     return img_as_ubyte(rve_seg)
 
@@ -91,18 +96,16 @@ class ConvertProgressWidget(BaseProgressWidget):
 class ConvertSegWidget(QtWidgets.QWidget):
     submit = QtCore.pyqtSignal()
 
-    def __init__(self, convert_function, output_type):
+    def __init__(self):
         super().__init__()
         self.seg_dir = None
         self.out_dir = None
-        self.convert_function = convert_function
-        self.output_type_name = output_type
         self.initUI()
 
     def initUI(self):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
-        self.setWindowTitle(f"Convert Segmentations to {self.output_type_name}")
+        self.setWindowTitle("Convert Segmentations")
 
         # Add specify seg directory button
         seg_dir_label = QtWidgets.QLabel()
@@ -124,6 +127,15 @@ class ConvertSegWidget(QtWidgets.QWidget):
         specify_out_dir_btn.clicked.connect(self.select_out_dir)
         layout.addWidget(specify_out_dir_btn)
 
+        convert_label = QtWidgets.QLabel()
+        convert_label.setText(f"Selected Output: Classical B/W masks (.png)")
+        layout.addWidget(convert_label)
+        self.convert_label = convert_label
+        self.convert_dropdown = QtWidgets.QComboBox()
+        self.convert_dropdown.addItems(['Classical B/W masks (.png)', 'Annotations (.png)', 
+                                       'RhizoVision Explorer format (.png)'])
+        self.convert_dropdown.currentIndexChanged.connect(self.format_selection_change)
+        layout.addWidget(self.convert_dropdown)
 
         info_label = QtWidgets.QLabel()
         info_label.setText("Segmentation directory and output directory"
@@ -137,8 +149,18 @@ class ConvertSegWidget(QtWidgets.QWidget):
         submit_btn.setEnabled(False)
         self.submit_btn = submit_btn
 
+    def format_selection_change(self, _):
+        self.convert_label.setText("Selected Output Format: " + self.convert_dropdown.currentText())
+
     def convert_segmentations(self):
         self.progress_widget = ConvertProgressWidget()
+        format_str = self.convert_dropdown.currentText()
+        if format_str == 'Annotations (.png)':
+            self.convert_function = convert_seg_to_annot
+        elif format_str == 'RhizoVision Explorer (.png)':
+            self.convert_function = convert_seg_to_rve
+        else:
+            self.convert_function = convert_seg_to_bw
         self.progress_widget.run(self.convert_function, self.seg_dir, self.out_dir)
         self.progress_widget.show()
         self.close()
