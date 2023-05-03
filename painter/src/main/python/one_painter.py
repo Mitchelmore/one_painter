@@ -48,7 +48,8 @@ from extract_length import ExtractLengthWidget
 from extract_comp import ExtractCompWidget
 from mask_images import MaskImWidget
 from assign_corrections import AssignCorrectionsWidget
-from convert_seg import ConvertSegWidget, convert_seg_to_rve, convert_seg_to_annot
+from convert_seg import ConvertSegWidget
+from convert_mask import ConvertMaskWidget
 from graphics_scene import GraphicsScene
 from graphics_view import CustomGraphicsView
 from nav import NavWidget
@@ -508,7 +509,7 @@ class OnePainter(QtWidgets.QMainWindow):
         extras_menu.addAction(comp_btn)
 
         conv_seg_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'),
-                                            'Convert segmentations to masks or annotations',
+                                            'Convert segmentations',
                                              self)
         conv_seg_btn.triggered.connect(self.show_conv_seg)
         extras_menu.addAction(conv_seg_btn)
@@ -524,6 +525,12 @@ class OnePainter(QtWidgets.QMainWindow):
         #                                      self)
         # conv_to_annot_btn.triggered.connect(self.show_conv_to_annot)
         # extras_menu.addAction(conv_to_annot_btn)
+
+        conv_mask_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'),
+                                            'Convert classical B/W masks',
+                                             self)
+        conv_mask_btn.triggered.connect(self.show_conv_mask)
+        extras_menu.addAction(conv_mask_btn)
 
         specify_sync_dir_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'),
                                                  'Specify sync directory',
@@ -1002,8 +1009,8 @@ class OnePainter(QtWidgets.QMainWindow):
         self.extract_comp_widget.show()
 
     def show_conv_seg(self):
-        self.convert_to_rve_widget = ConvertSegWidget()
-        self.convert_to_rve_widget.show()
+        self.convert_seg_widget = ConvertSegWidget()
+        self.convert_seg_widget.show()
 
     # def show_conv_to_rve(self):
     #     """ show window to convert segmentations
@@ -1018,6 +1025,10 @@ class OnePainter(QtWidgets.QMainWindow):
     #     self.convert_to_annot_widget = ConvertSegWidget(s
     #         convert_seg_to_annot, 'annotations')
     #     self.convert_to_annot_widget.show()
+
+    def show_conv_mask(self):
+        self.convert_mask_widget = ConvertMaskWidget()
+        self.convert_mask_widget.show()
 
     def stop_training(self):
         self.info_label.setText("Stopping training...")
