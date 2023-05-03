@@ -217,6 +217,10 @@ class OnePainter(QtWidgets.QMainWindow):
         self.init_active_project_ui()
         self.track_changes()
 
+    def save_update_file(self, fpath):
+        filled = im_utils.fill_fg_bg(self.scene.annot_pixmap)
+        self.scene.annot_pixmap = filled
+        self.update_file(fpath)
 
     def update_file(self, fpath):
         
@@ -706,6 +710,7 @@ class OnePainter(QtWidgets.QMainWindow):
         bottom_bar_layout.addWidget(bottom_bar_r)
 
         # Nav
+        self.nav.save_file_change.connect(self.save_update_file)
         self.nav.file_change.connect(self.update_file)
 
         self.nav.image_path = self.image_path
