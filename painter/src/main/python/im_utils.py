@@ -176,21 +176,22 @@ def gen_composite(annot_dir, photo_dir, comp_dir, fname, ext='.jpg'):
 def fill_fg_bg(annot_pixmap):
     """
     Fills inside of foreground outline with foreground color and outwards of background 
-    outline with background color. 
+    outline with background color. Requires at least one color on annotation.
     """
-    # convert the pixmap to numpy
-    annot_im = annot_pixmap.toImage()
-    annot = np.array(qimage2ndarray.rgb_view(annot_im))
-    # fill in foreground shape
-    fg = binary_fill_holes(annot[:, :, 0])
-    # expand foreground shape to background border(s) to get inverted background
-    inv = np.logical_not(annot[:, :, 1]) 
-    bg_inv = binary_dilation(fg, iterations=-1, mask=inv)
-    filled = np.zeros((annot.shape[0], annot.shape[1], 4))
-    filled[fg > 0]  = [255, 0, 0, 180] 
-    filled[bg_inv == 0] = [0, 255, 0, 180]
-    filled_q = qimage2ndarray.array2qimage(filled)
-    return QtGui.QPixmap.fromImage(filled_q)
+    fg, bg = get_fg_bg(annot_pixmap)
+    if np.sum(fg) or np.sum(bg):
+        # fill in foreground shape
+        fg = binary_fill_holes(fg)
+        # expand foreground shape to background border(s) to get inverted background
+        inv = np.logical_not(bg) 
+        bg_inv = binary_dilation(fg, iterations=-1, mask=inv)
+        filled = np.zeros((fg.shape[0], fg.shape[1], 4))
+        filled[fg > 0]  = [255, 0, 0, 180] 
+        filled[bg_inv == 0] = [0, 255, 0, 180]
+        filled_q = qimage2ndarray.array2qimage(filled)
+        return QtGui.QPixmap.fromImage(filled_q)
+    else:
+        return annot_pixmap
 
 def get_seg(seg_pixmap):
     seg_im = seg_pixmap.toImage()
