@@ -72,6 +72,7 @@ class GraphicsScene(QtWidgets.QGraphicsScene):
             x, y = pos.x(), pos.y()
             if modifiers == QtCore.Qt.AltModifier and self.parent.seg_visible:
                 # if alt key is pressed then foreground-fill the clicked segment
+                # fills with foreground regardless of brush_color
                 # first find out if (x, y) is in a segment
                 xr = round(x)
                 yr = round(y)

@@ -219,7 +219,3 @@ def seg_fill_fg(annot_pixmap, seg, x, y):
     filled[bg > 0]     = [0, 255, 0, 180]
     filled_q = qimage2ndarray.array2qimage(filled)
     return QtGui.QPixmap.fromImage(filled_q)
-# TODO: 
-# Only start changing stuff (seg_fg) if (x,y) in seg region. OK
-# Don't allow alt and mouse move (draws).OK
-# Restrict seg_new mask to stay inside any green background on seg region to be filled. OK
