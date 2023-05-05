@@ -197,25 +197,48 @@ def get_seg(seg_pixmap):
     seg = np.array(qimage2ndarray.rgb_view(seg_im))[:, :, 2]
     return seg
 
-def seg_fill_fg(annot_pixmap, seg, x, y):
-    """
-    Selects a connected component in blue channel and flood-fills with foreground color,
-    up to any border with background color. 
-    """
+def get_fg_bg(annot_pixmap):
     annot_im = annot_pixmap.toImage()
     annot_rgb = np.array(qimage2ndarray.rgb_view(annot_im))
     fg = annot_rgb[:, :, 0]
     bg = annot_rgb[:, :, 1]
-    # get mask for seg and inverted background, then flood-fill with foreground
+    return fg, bg
+
+def seg_fill_fg(annot_pixmap, seg, x, y):
+    """
+    Selects a connected component in blue channel and flood-fills with foreground color,
+    up to any background border, in annotation.
+    """
+    fg, bg = get_fg_bg(annot_pixmap)
+    # get mask for seg, fg and inverted background, then flood-fill with foreground
     seg_new = np.zeros((seg.shape[0], seg.shape[1]), dtype=int)
     seg_new[seg > 0] = 1
-    seg_new[bg > 0] = 0
+    seg_new[bg > 0]  = 0
+    seg_new[fg > 0]  = 1
     seg_fg = np.zeros((seg.shape[0], seg.shape[1]), dtype=int)
     seg_fg[y, x] = 1
     seg_fg = binary_dilation(seg_fg, iterations=-1, mask=seg_new)
     filled = np.zeros((fg.shape[0], fg.shape[1], 4))
-    filled[fg > 0]     = [255, 0, 0, 180] 
     filled[seg_fg > 0] = [255, 0, 0, 180] 
     filled[bg > 0]     = [0, 255, 0, 180]
+    filled_q = qimage2ndarray.array2qimage(filled)
+    return QtGui.QPixmap.fromImage(filled_q)
+
+
+def unfill_cc(annot_pixmap, msk, x, y):
+    """
+    Selects and un-colors a connected component in annotation.
+    """
+    fg, bg = get_fg_bg(annot_pixmap)
+    # get mask for seg, fg and inverted background, then flood-fill with foreground
+    msk_new = np.zeros((msk.shape[0], msk.shape[1]), dtype=int)
+    msk_new[msk > 0] = 1
+    cc = np.zeros((msk.shape[0], msk.shape[1]), dtype=int)
+    cc[y, x] = 1
+    cc = binary_dilation(cc, iterations=-1, mask=msk_new)
+    filled = np.zeros((fg.shape[0], fg.shape[1], 4))
+    filled[fg > 0] = [255, 0, 0, 180] 
+    filled[bg > 0] = [0, 255, 0, 180]
+    filled[cc > 0] = [0, 0, 0, 0]
     filled_q = qimage2ndarray.array2qimage(filled)
     return QtGui.QPixmap.fromImage(filled_q)

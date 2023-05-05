@@ -70,15 +70,28 @@ class GraphicsScene(QtWidgets.QGraphicsScene):
         if not modifiers & QtCore.Qt.ControlModifier and self.parent.annot_visible:
             pos = event.scenePos()
             x, y = pos.x(), pos.y()
-            if modifiers == QtCore.Qt.AltModifier and self.parent.seg_visible:
-                # if alt key is pressed then foreground-fill the clicked segment
-                # fills with foreground regardless of brush_color
+            if (modifiers == QtCore.Qt.AltModifier and self.parent.seg_visible
+                  and self.brush_color == self.foreground_color):
+                # if alt key is pressed and brush_color is foreground 
+                # then foreground-fill the clicked segment 
                 # first find out if (x, y) is in a segment
                 xr = round(x)
                 yr = round(y)
                 seg = im_utils.get_seg(self.parent.seg_pixmap)
                 if seg[yr, xr] > 0:
                     self.annot_pixmap = im_utils.seg_fill_fg(self.annot_pixmap, seg, xr, yr)
+                    self.annot_pixmap_holder.setPixmap(self.annot_pixmap)
+            elif modifiers == QtCore.Qt.AltModifier and self.brush_color == self.eraser_color:
+                # if alt key is pressed and brush_color is eraser then un-color the clicked object 
+                # first find out which colour the clicked object has, if any
+                xr = round(x)
+                yr = round(y)
+                fg, bg = im_utils.get_fg_bg(self.annot_pixmap)
+                if fg[yr, xr] > 0:
+                    self.annot_pixmap = im_utils.unfill_cc(self.annot_pixmap, fg, xr, yr)
+                    self.annot_pixmap_holder.setPixmap(self.annot_pixmap)
+                elif bg[yr, xr] > 0:
+                    self.annot_pixmap = im_utils.unfill_cc(self.annot_pixmap, bg, xr, yr)
                     self.annot_pixmap_holder.setPixmap(self.annot_pixmap)
             else:
                 self.drawing = True
