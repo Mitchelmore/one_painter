@@ -21,6 +21,7 @@ from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
+import im_utils
 
 
 class GraphicsScene(QtWidgets.QGraphicsScene):
@@ -67,29 +68,39 @@ class GraphicsScene(QtWidgets.QGraphicsScene):
     def mousePressEvent(self, event):
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         if not modifiers & QtCore.Qt.ControlModifier and self.parent.annot_visible:
-            self.drawing = True
             pos = event.scenePos()
             x, y = pos.x(), pos.y()
-            if self.brush_size == 1:
-                circle_x = x
-                circle_y = y
+            if modifiers == QtCore.Qt.AltModifier and self.parent.seg_visible:
+                # if alt key is pressed then foreground-fill the clicked segment
+                # first find out if (x, y) is in a segment
+                xr = round(x)
+                yr = round(y)
+                seg = im_utils.get_seg(self.parent.seg_pixmap)
+                if seg[yr, xr] > 0:
+                    self.annot_pixmap = im_utils.seg_fill_fg(self.annot_pixmap, seg, xr, yr)
+                    self.annot_pixmap_holder.setPixmap(self.annot_pixmap)
             else:
-                circle_x = x - (self.brush_size / 2) + 0.5
-                circle_y = y - (self.brush_size / 2) + 0.5
+                self.drawing = True
+                if self.brush_size == 1:
+                    circle_x = x
+                    circle_y = y
+                else:
+                    circle_x = x - (self.brush_size / 2) + 0.5
+                    circle_y = y - (self.brush_size / 2) + 0.5
 
-            painter = QtGui.QPainter(self.annot_pixmap)
-            painter.setCompositionMode(QtGui.QPainter.CompositionMode_Source)
-            painter.drawPixmap(0, 0, self.annot_pixmap)
-            painter.setPen(QtGui.QPen(self.brush_color, 0, Qt.SolidLine,
-                                      Qt.RoundCap, Qt.RoundJoin))
-            painter.setBrush(QtGui.QBrush(self.brush_color, Qt.SolidPattern))
-            if self.brush_size == 1:
-                painter.drawPoint(round(circle_x), round(circle_y))
-            else:
-                painter.drawEllipse(round(circle_x), round(circle_y),
-                                    round(self.brush_size-1), round(self.brush_size-1))
-            self.annot_pixmap_holder.setPixmap(self.annot_pixmap)
-            painter.end()
+                painter = QtGui.QPainter(self.annot_pixmap)
+                painter.setCompositionMode(QtGui.QPainter.CompositionMode_Source)
+                painter.drawPixmap(0, 0, self.annot_pixmap)
+                painter.setPen(QtGui.QPen(self.brush_color, 0, Qt.SolidLine,
+                                        Qt.RoundCap, Qt.RoundJoin))
+                painter.setBrush(QtGui.QBrush(self.brush_color, Qt.SolidPattern))
+                if self.brush_size == 1:
+                    painter.drawPoint(round(circle_x), round(circle_y))
+                else:
+                    painter.drawEllipse(round(circle_x), round(circle_y),
+                                        round(self.brush_size-1), round(self.brush_size-1))
+                self.annot_pixmap_holder.setPixmap(self.annot_pixmap)
+                painter.end()
             self.last_x = x
             self.last_y = y
 

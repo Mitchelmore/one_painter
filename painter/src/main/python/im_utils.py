@@ -191,3 +191,35 @@ def fill_fg_bg(annot_pixmap):
     filled[bg_inv == 0] = [0, 255, 0, 180]
     filled_q = qimage2ndarray.array2qimage(filled)
     return QtGui.QPixmap.fromImage(filled_q)
+
+def get_seg(seg_pixmap):
+    seg_im = seg_pixmap.toImage()
+    seg = np.array(qimage2ndarray.rgb_view(seg_im))[:, :, 2]
+    return seg
+
+def seg_fill_fg(annot_pixmap, seg, x, y):
+    """
+    Selects a connected component in blue channel and flood-fills with foreground color,
+    up to any border with background color. 
+    """
+    annot_im = annot_pixmap.toImage()
+    annot_rgb = np.array(qimage2ndarray.rgb_view(annot_im))
+    fg = annot_rgb[:, :, 0]
+    bg = annot_rgb[:, :, 1]
+    # get mask for seg and inverted background, then flood-fill with foreground
+    seg_new = np.zeros((seg.shape[0], seg.shape[1]), dtype=int)
+    seg_new[seg > 0] = 1
+    seg_new[bg > 0] = 0
+    seg_fg = np.zeros((seg.shape[0], seg.shape[1]), dtype=int)
+    seg_fg[y, x] = 1
+    seg_fg = binary_dilation(seg_fg, iterations=-1, mask=seg_new)
+    filled = np.zeros((fg.shape[0], fg.shape[1], 4))
+    filled[fg > 0]     = [255, 0, 0, 180] 
+    filled[seg_fg > 0] = [255, 0, 0, 180] 
+    filled[bg > 0]     = [0, 255, 0, 180]
+    filled_q = qimage2ndarray.array2qimage(filled)
+    return QtGui.QPixmap.fromImage(filled_q)
+# TODO: 
+# Only start changing stuff (seg_fg) if (x,y) in seg region. OK
+# Don't allow alt and mouse move (draws).OK
+# Restrict seg_new mask to stay inside any green background on seg region to be filled. OK
