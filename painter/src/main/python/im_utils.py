@@ -215,12 +215,12 @@ def seg_fill_fg(annot_pixmap, seg, x, y):
     seg_new = np.zeros((seg.shape[0], seg.shape[1]), dtype=int)
     seg_new[seg > 0] = 1
     seg_new[bg > 0]  = 0
-    seg_new[fg > 0]  = 1
     seg_fg = np.zeros((seg.shape[0], seg.shape[1]), dtype=int)
     seg_fg[y, x] = 1
     seg_fg = binary_dilation(seg_fg, iterations=-1, mask=seg_new)
     filled = np.zeros((fg.shape[0], fg.shape[1], 4))
     filled[seg_fg > 0] = [255, 0, 0, 180] 
+    filled[fg > 0]     = [255, 0, 0, 180] 
     filled[bg > 0]     = [0, 255, 0, 180]
     filled_q = qimage2ndarray.array2qimage(filled)
     return QtGui.QPixmap.fromImage(filled_q)
@@ -231,7 +231,7 @@ def unfill_cc(annot_pixmap, msk, x, y):
     Selects and un-colors a connected component in annotation.
     """
     fg, bg = get_fg_bg(annot_pixmap)
-    # get mask for seg, fg and inverted background, then flood-fill with foreground
+    # get mask for colored component, then flood-fill with 0's
     msk_new = np.zeros((msk.shape[0], msk.shape[1]), dtype=int)
     msk_new[msk > 0] = 1
     cc = np.zeros((msk.shape[0], msk.shape[1]), dtype=int)
