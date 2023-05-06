@@ -71,8 +71,16 @@ def convert_mask_to_annot(msk, px=2, pxb=2):
     Output:
         foreground and background in red and green channels, respectively
     """
-    ero = binary_erosion(msk, iterations=px)
-    dil = binary_dilation(msk, iterations=pxb)
+    # for binary_erosion and binary_dilation, want to avoid iterations less than 1, 
+    # otherwise the action is repeated until the result does not change anymore
+    if px < 1:
+        ero = msk
+    else:
+        ero = binary_erosion(msk, iterations=px)
+    if pxb < 1:
+        dil = msk
+    else:
+        dil = binary_dilation(msk, iterations=pxb)
     annot = np.zeros((msk.shape[0], msk.shape[1], 4))
     annot[ero > 0]  = [1.0, 0, 0, 0.7] 
     annot[dil == 0] = [0, 1.0, 0, 0.7] 
