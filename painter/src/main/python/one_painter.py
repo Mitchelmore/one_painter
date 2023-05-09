@@ -30,6 +30,8 @@ import os
 from pathlib import PurePath, Path
 import json
 from functools import partial
+from datetime import datetime
+import time
 
 from skimage.io import use_plugin
 from PyQt5 import QtWidgets
@@ -89,6 +91,12 @@ class OnePainter(QtWidgets.QMainWindow):
         self.im_width = None
         self.im_height = None
         self.metrics_plot = None
+
+        self.lines_to_log = []
+        self.log_debounce = QtCore.QTimer()
+        self.log_debounce.setInterval(500)
+        self.log_debounce.setSingleShot(True)
+        self.log_debounce.timeout.connect(self.log_debounced)
 
         self.initUI()
 
@@ -217,6 +225,19 @@ class OnePainter(QtWidgets.QMainWindow):
         self.init_active_project_ui()
         self.track_changes()
 
+
+    def log_debounced(self):
+        """ write to log file only so often to avoid lag """
+        with open(os.path.join(self.log_dir, 'client.csv'), 'a+') as log_file:
+            while self.lines_to_log:
+                line = self.lines_to_log[0]
+                log_file.write(line)
+                self.lines_to_log = self.lines_to_log[1:]
+
+    def log(self, message):
+        self.lines_to_log.append(f"{datetime.now()},{time.time()},{message}\n")
+        self.log_debounce.start() # write after 1 second
+
     def save_update_file(self, fpath):
         filled = im_utils.fill_fg_bg(self.scene.annot_pixmap)
         self.scene.annot_pixmap = filled
@@ -254,6 +275,7 @@ class OnePainter(QtWidgets.QMainWindow):
 
         self.segment_current_image()
         self.update_window_title()
+        self.log(f'update_file_end,fname:{os.path.basename(fpath)}')
 
 
     def update_context_viewer(self):
@@ -586,10 +608,15 @@ class OnePainter(QtWidgets.QMainWindow):
         self.metrics_plot = MetricsPlot()
 
 
-        view_metrics_csv_btn.triggered.connect(view_metric_csv)
-        extras_menu.addAction(view_metrics_csv_btn)
-
-
+        # view_metrics_csv_btn.triggered.connect(view_metric_csv)
+        # This has been disabled because the metrics are getting constantly
+        # expanded (new features) and the code that loads metrics from csv
+        # needs to be udpated to include the new metrics.  I'm going to disable
+        # this functionality for a while and see if anyone notices. If they
+        # notice/complain, then I think it would be worthwhile to update this
+        # functionality and think about how to make it work with both new
+        # (including more metrics) and old metrics CSV files.
+        # extras_menu.addAction(view_metrics_csv_btn)
 
         if project_open:
             metrics_plot_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'),
@@ -1200,13 +1227,13 @@ class OnePainter(QtWidgets.QMainWindow):
 
     def save_annotation(self):
         if self.scene.annot_pixmap:
+            self.log(f'save_annotation,fname:{self.png_fname}')
             self.annot_path = maybe_save_annotation(self.proj_location,
                                                     self.scene.annot_pixmap,
                                                     self.annot_path,
                                                     self.png_fname,
                                                     self.train_annot_dir,
                                                     self.val_annot_dir)
-
             self.metrics_plot.add_file_metrics(os.path.basename(self.image_path))
 
 
