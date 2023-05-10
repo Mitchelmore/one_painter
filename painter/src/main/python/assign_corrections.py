@@ -17,22 +17,25 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 # pylint: disable=I1101,C0111,W0201,R0903,E0611, R0902, R0914
 import os
-
-from im_utils import save_corrected_segmentation, all_image_paths_in_dir
+import numpy as np
+from im_utils import corrected_seg, all_image_paths_in_dir
 from progress_widget import BaseProgressWidget
 from PyQt5 import QtCore, QtWidgets
 import traceback
+from skimage.io import imread, imsave
+from skimage import img_as_ubyte, img_as_float
 
 
-class Thread(QtCore.QThread):
+class AssignThread(QtCore.QThread):
     progress_change = QtCore.pyqtSignal(int, int)
     done = QtCore.pyqtSignal()
 
-    def __init__(self, annot_dir, seg_dir, out_dir):
+    def __init__(self, conversion_function, annot_dir, seg_dir, out_dir):
         super().__init__()
         self.seg_dir = seg_dir
         self.annot_dir = annot_dir
         self.out_dir = out_dir
+        self.conversion_function = conversion_function
 
     def run(self):
         annot_fpaths = all_image_paths_in_dir(self.annot_dir)
@@ -41,9 +44,12 @@ class Thread(QtCore.QThread):
             self.progress_change.emit(i + 1, len(annot_fpaths))
             if os.path.isfile(f):
                 try:
-                    save_corrected_segmentation(
-                        f, self.seg_dir, self.out_dir,
-                    )
+                    # Load corrected seg and convert
+                    fname = os.path.basename(f)
+                    seg = corrected_seg(f, self.seg_dir, fname)
+                    converted_seg = self.conversion_function(seg)
+                    imsave(os.path.join(self.out_dir, fname),
+                        converted_seg, check_contrast=False)
                 except Exception as e:
                     print('Exception handling', f)
                     print(e)
@@ -51,15 +57,38 @@ class Thread(QtCore.QThread):
         self.done.emit()
 
 
-class ProgressWidget(BaseProgressWidget):
+def convert_seg_to_bw(seg):
+    # Load OnePainter blue channel (white is foreground).
+    bw_seg = seg[:, :, 2]
+    return img_as_ubyte(bw_seg)
+
+def convert_seg_to_rve(seg):
+    # Load OnePainter blue channel and invert (white is background).
+    rve_seg = (seg[:, :, 2] == 0)
+    return img_as_ubyte(rve_seg)
+
+def convert_seg_to_annot(seg):
+    """ segmentation blue channel is foreground annotation
+        everything else is background annotation """
+    annot = np.zeros((seg.shape[0], seg.shape[1], 4))
+    seg_fg = seg[:, :, 2] # assume blue is foreground prediction
+    seg_fg = img_as_float(seg_fg)
+    annot[seg_fg >= 0.5]  = [1.0, 0, 0, 0.7] 
+    annot[seg_fg < 0.5]   = [0, 1.0, 0, 0.7] # bg channel
+    return img_as_ubyte(annot)
+
+def no_convert(seg):
+    return img_as_ubyte(seg)
+
+class AssignProgressWidget(BaseProgressWidget):
     def __init__(self):
         super().__init__("Generating corrected segmentations")
 
-    def run(self, annot_dir, seg_dir, out_dir):
+    def run(self, convert_function, annot_dir, seg_dir, out_dir):
         self.annot_dir = annot_dir
         self.seg_dir = seg_dir
         self.out_dir = out_dir
-        self.thread = Thread(annot_dir, seg_dir, out_dir)
+        self.thread = AssignThread(convert_function, annot_dir, seg_dir, out_dir)
         annot_fpaths = all_image_paths_in_dir(self.annot_dir)
         annot_fpaths = [f for f in annot_fpaths if os.path.splitext(f)[1] == ".png"]
         self.progress_bar.setMaximum(len(annot_fpaths))
@@ -123,6 +152,16 @@ class AssignCorrectionsWidget(QtWidgets.QWidget):
         specify_out_dir_btn.clicked.connect(self.select_out_dir)
         layout.addWidget(specify_out_dir_btn)
 
+        convert_label = QtWidgets.QLabel()
+        convert_label.setText(f"Selected Output: Segmentations (.png)")
+        layout.addWidget(convert_label)
+        self.convert_label = convert_label
+        self.convert_dropdown = QtWidgets.QComboBox()
+        self.convert_dropdown.addItems(['Segmentations (.png)', 'Classical B/W masks (.png)', 
+                                       'Annotations (.png)', 'RhizoVision Explorer format (.png)'])
+        self.convert_dropdown.currentIndexChanged.connect(self.format_selection_change)
+        layout.addWidget(self.convert_dropdown)
+
         info_label = QtWidgets.QLabel()
         info_label.setText(
             "Annotation directory, segmentation directory and output directory must be specified."
@@ -131,14 +170,26 @@ class AssignCorrectionsWidget(QtWidgets.QWidget):
         self.info_label = info_label
 
         submit_btn = QtWidgets.QPushButton("Extract corrected segmentations")
-        submit_btn.clicked.connect(self.extract)
+        submit_btn.clicked.connect(self.correct_segmentations)
         layout.addWidget(submit_btn)
         submit_btn.setEnabled(False)
         self.submit_btn = submit_btn
 
-    def extract(self):
-        self.progress_widget = ProgressWidget()
-        self.progress_widget.run(self.annot_dir, self.seg_dir, self.out_dir)
+    def format_selection_change(self, _):
+        self.convert_label.setText("Selected Output Format: " + self.convert_dropdown.currentText())
+
+    def correct_segmentations(self):
+        self.progress_widget = AssignProgressWidget()
+        format_str = self.convert_dropdown.currentText()
+        if format_str == 'Annotations (.png)':
+            self.convert_function = convert_seg_to_annot
+        elif format_str == 'Classical B/W masks (.png)':
+            self.convert_function = convert_seg_to_bw
+        elif format_str == 'RhizoVision Explorer format (.png)':
+            self.convert_function = convert_seg_to_rve
+        else:
+            self.convert_function = no_convert
+        self.progress_widget.run(self.convert_function, self.annot_dir, self.seg_dir, self.out_dir)
         self.progress_widget.show()
         self.close()
 

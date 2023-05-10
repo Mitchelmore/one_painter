@@ -40,7 +40,7 @@ class ConvertThread(QtCore.QThread):
         for i, f in enumerate(seg_fnames):
             self.progress_change.emit(i+1, len(seg_fnames))
             if os.path.isfile(os.path.join(self.seg_dir, os.path.splitext(f)[0] + '.png')):
-                # Load OnePainter seg blue channel and invert.
+                # Load seg and convert
                 seg = imread(os.path.join(self.seg_dir, f))
                 converted_seg = self.conversion_function(seg)
                 imsave(os.path.join(self.out_dir, f),

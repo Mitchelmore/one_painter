@@ -225,7 +225,6 @@ def seg_fill_fg(annot_pixmap, seg, x, y):
     filled_q = qimage2ndarray.array2qimage(filled)
     return QtGui.QPixmap.fromImage(filled_q)
 
-
 def unfill_cc(annot_pixmap, msk, x, y):
     """
     Selects and un-colors a connected component in annotation.
@@ -243,3 +242,14 @@ def unfill_cc(annot_pixmap, msk, x, y):
     filled[cc > 0] = [0, 0, 0, 0]
     filled_q = qimage2ndarray.array2qimage(filled)
     return QtGui.QPixmap.fromImage(filled_q)
+
+def corrected_seg(annot_fpath, seg_dir, fname):
+    """assign the annotations (corrections) to the segmentations. This is useful
+       to obtain more accurate (corrected) segmentations."""
+    seg = img_as_float(imread(os.path.join(seg_dir, fname)))
+    annot = img_as_float(imread(annot_fpath))
+    fg = annot[:, :, 0]
+    bg = annot[:, :, 1]
+    seg[bg > 0] = [0,0,0,0]
+    seg[fg > 0] = [0, 1.0, 1.0, 0.7]
+    return seg
