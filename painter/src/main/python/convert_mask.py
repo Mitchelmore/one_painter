@@ -41,7 +41,7 @@ class ConvertThread(QtCore.QThread):
         for i, f in enumerate(mask_fnames):
             self.progress_change.emit(i+1, len(mask_fnames))
             if os.path.isfile(os.path.join(self.mask_dir, os.path.splitext(f)[0] + '.png')):
-                # Load OnePainter mask and connvert.
+                # Load OnePainter mask and convert
                 mask = imread(os.path.join(self.mask_dir, f))
                 converted_mask = self.conversion_function(mask)
                 imsave(os.path.join(self.out_dir, f),
@@ -60,7 +60,16 @@ def convert_mask_to_seg(bw):
     seg[bw > 0] = [0.0, 1.0, 1.0, 0.7] 
     return img_as_ubyte(seg)
 
-def convert_mask_to_annot(msk, px=2, pxb=2):
+def convert_mask_to_annot(msk):
+    """ 
+    Converts black/white masks to green/red annotations, respectively 
+    """
+    annot = np.zeros((msk.shape[0], msk.shape[1], 4))
+    annot[msk > 0]  = [1.0, 0, 0, 0.7] 
+    annot[msk == 0]  = [0, 1.0, 0, 0.7] # bg channel
+    return img_as_ubyte(annot)
+
+def convert_mask_to_eroded_annot(msk, px=2, pxb=2):
     """
     Converts black/white masks to green/red annotations, respectively, with 
     optional shrinkage of annotations (default is by 2 pixels on each side)
@@ -150,7 +159,7 @@ class ConvertMaskWidget(QtWidgets.QWidget):
         self.convert_label = convert_label
         self.convert_dropdown = QtWidgets.QComboBox()
         self.convert_dropdown.addItems(['Annotations (.png)', 'Segmentations (.png)',
-                                       'RhizoVision Explorer format (.png)'])
+                                       'Eroded annotations (.png)', 'RhizoVision Explorer format (.png)'])
         self.convert_dropdown.currentIndexChanged.connect(self.format_selection_change)
         layout.addWidget(self.convert_dropdown)
 
@@ -176,6 +185,8 @@ class ConvertMaskWidget(QtWidgets.QWidget):
             self.convert_function = convert_mask_to_rve
         elif format_str == 'Segmentations (.png)':
             self.convert_function = convert_mask_to_seg
+        elif format_str == 'Eroded annotations (.png)':
+            self.convert_function = convert_mask_to_eroded_annot
         else:
             self.convert_function = convert_mask_to_annot
         self.progress_widget.run(self.convert_function, self.mask_dir, self.out_dir)
