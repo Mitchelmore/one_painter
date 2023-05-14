@@ -87,6 +87,8 @@ class OnePainter(QtWidgets.QMainWindow):
         self.image_visible = True
         self.seg_visible = False
         self.annot_visible = True
+        self.corrective = False
+        self.corrective_idx = 0
         self.pre_segment_count = 0
         self.im_width = None
         self.im_height = None
@@ -238,8 +240,15 @@ class OnePainter(QtWidgets.QMainWindow):
         self.lines_to_log.append(f"{datetime.now()},{time.time()},{message}\n")
         self.log_debounce.start() # write after 1 second
 
-    def save_update_file(self, fpath):
-        filled = im_utils.fill_fg_bg(self.scene.annot_pixmap)
+    def save_update_file(self, fpath, cur_idx):
+        # only activate corrective annotation when images are after start of corrective mode
+        if self.corrective and cur_idx > self.corrective_idx:
+            filled = im_utils.fill_corrective(self.scene.annot_pixmap, self.seg_pixmap)
+        else:
+            filled = im_utils.fill_fg_bg(self.scene.annot_pixmap)
+            # update self.corrective_idx to largest non-corrective index
+            if not self.corrective and cur_idx > self.corrective_idx:
+                self.corrective_idx = cur_idx
         self.scene.annot_pixmap = filled
         self.update_file(fpath)
 
@@ -980,6 +989,11 @@ class OnePainter(QtWidgets.QMainWindow):
         start_training_btn.triggered.connect(self.start_training)
         network_menu.addAction(start_training_btn)
 
+        # start training
+        start_corrective_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'), 'Start corrective fill', self)
+        start_corrective_btn.triggered.connect(self.start_corrective_fill)
+        network_menu.addAction(start_corrective_btn)
+
         # stop training
         stop_training_btn = QtWidgets.QAction(QtGui.QIcon('missing.png'), 'Stop training', self)
         stop_training_btn.triggered.connect(self.stop_training)
@@ -1079,6 +1093,9 @@ class OnePainter(QtWidgets.QMainWindow):
             "message_dir": self.message_dir
         }
         self.send_instruction('start_training', content)
+
+    def start_corrective_fill(self):
+        self.corrective = True
 
     def seg_checkbox_change(self, state):
         checked = (state == QtCore.Qt.Checked)

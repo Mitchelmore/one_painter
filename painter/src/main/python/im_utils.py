@@ -205,6 +205,28 @@ def get_fg_bg(annot_pixmap):
     bg = annot_rgb[:, :, 1]
     return fg, bg
 
+def fill_corrective(annot_pixmap, seg_pixmap):
+    """
+    Fills inside of foreground outline with foreground color and, only for segmented components, 
+    outwards of background outline with background color. Requires at least one color on annotation.
+    """
+    fg, bg = get_fg_bg(annot_pixmap)
+    seg = get_seg(seg_pixmap)
+    if np.sum(fg) or np.sum(bg):
+        # fill in foreground shape
+        fg = binary_fill_holes(fg)
+        # expand foreground shape to background border(s) to get inverted background
+        inv = np.logical_not(bg) 
+        bg_inv = binary_dilation(fg, iterations=-1, mask=inv)
+        filled = np.zeros((fg.shape[0], fg.shape[1], 4))
+        filled[seg > 0]    = [0, 255, 0, 180] 
+        filled[bg_inv > 0] = [0, 0, 0, 0] 
+        filled[fg > 0]     = [255, 0, 0, 180]
+        filled_q = qimage2ndarray.array2qimage(filled)
+        return QtGui.QPixmap.fromImage(filled_q)
+    else:
+        return annot_pixmap
+    
 def seg_fill_fg(annot_pixmap, seg, x, y):
     """
     Selects a connected component in blue channel and flood-fills with foreground color,

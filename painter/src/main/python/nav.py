@@ -25,9 +25,8 @@ from PyQt5.QtCore import Qt
 class NavWidget(QtWidgets.QWidget):
     """ Shows next and previous buttons as well as image position in folder.
     """
-    save_file_change = QtCore.pyqtSignal(str)
+    save_file_change = QtCore.pyqtSignal(str, int)
     file_change = QtCore.pyqtSignal(str)
-    #preview_fill = QtCore.pyqtSignal(str)
 
     def __init__(self, all_fnames, annot_dirs):
         super().__init__()
@@ -82,7 +81,7 @@ class NavWidget(QtWidgets.QWidget):
         all_paths = self.get_path_list(dir_path)
         cur_idx = all_paths.index(self.image_path)
         self.image_path = all_paths[cur_idx]
-        self.save_file_change.emit(self.image_path)
+        self.save_file_change.emit(self.image_path, cur_idx)
 
     def show_next_image(self):
         self.next_image_button.setEnabled(False)
@@ -96,7 +95,7 @@ class NavWidget(QtWidgets.QWidget):
         if next_idx >= len(all_paths):
             next_idx = 0
         self.image_path = all_paths[next_idx]
-        self.save_file_change.emit(self.image_path)
+        self.save_file_change.emit(self.image_path, cur_idx)
         self.update_nav_label()
 
     def show_prev_image(self):
