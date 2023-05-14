@@ -27,6 +27,7 @@ class NavWidget(QtWidgets.QWidget):
     """
     save_file_change = QtCore.pyqtSignal(str)
     file_change = QtCore.pyqtSignal(str)
+    #preview_fill = QtCore.pyqtSignal(str)
 
     def __init__(self, all_fnames, annot_dirs):
         super().__init__()
@@ -54,6 +55,11 @@ class NavWidget(QtWidgets.QWidget):
         self.next_image_button.clicked.connect(self.show_next_image)
         nav_layout.addWidget(self.next_image_button)
 
+        self.preview_fill_button = QtWidgets.QPushButton('   Save    ')
+        self.preview_fill_button.setFocusPolicy(Qt.NoFocus)
+        self.preview_fill_button.clicked.connect(self.show_preview_fill)
+        nav_layout.addWidget(self.preview_fill_button)
+
         # left, top, right, bottom
         nav_layout.setContentsMargins(0, 0, 0, 5)
         nav.setLayout(nav_layout)
@@ -70,6 +76,13 @@ class NavWidget(QtWidgets.QWidget):
         all_paths = [os.path.abspath(os.path.join(os.path.abspath(dir_path), a))
                      for a in all_files]
         return all_paths
+
+    def show_preview_fill(self):
+        dir_path, _ = os.path.split(self.image_path)
+        all_paths = self.get_path_list(dir_path)
+        cur_idx = all_paths.index(self.image_path)
+        self.image_path = all_paths[cur_idx]
+        self.save_file_change.emit(self.image_path)
 
     def show_next_image(self):
         self.next_image_button.setEnabled(False)
