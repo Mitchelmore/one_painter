@@ -129,12 +129,12 @@ class SegmentFolderWidget(QtWidgets.QWidget):
         layout.addWidget(specify_model_btn)
 
         format_label = QtWidgets.QLabel()
-        format_label.setText("Selected Output: One-segment results (.png)")
+        format_label.setText("Selected Output: All-segment results (.png)")
         layout.addWidget(format_label)
         self.format_label = format_label
         self.format_dropdown = QtWidgets.QComboBox()
-        self.format_dropdown.addItems(['One-segment results (.png)', 'Two-segment results (.png)', 
-                                       'All-segment results (.png)', 'RhizoVision Explorer format (.png)'])
+        self.format_dropdown.addItems(['All-segment results (.png)', 'One-segment results (.png)', 
+                                       'Two-segment results (.png)', 'RhizoVision Explorer format (.png)'])
         # nobody needs numpy yet
         # self.format_dropdown.addItems(['OnePainter Default (.png)', 'RhizoVision Explorer (.png)', 'Numpy Compressed (.npz)'])
         self.format_dropdown.currentIndexChanged.connect(self.format_selection_change)
