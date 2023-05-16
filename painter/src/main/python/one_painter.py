@@ -87,6 +87,7 @@ class OnePainter(QtWidgets.QMainWindow):
         self.image_visible = True
         self.seg_visible = False
         self.annot_visible = True
+        self.start_corrective = False
         self.corrective = False
         self.corrective_idx = 0
         self.pre_segment_count = 0
@@ -241,14 +242,14 @@ class OnePainter(QtWidgets.QMainWindow):
         self.log_debounce.start() # write after 1 second
 
     def save_update_file(self, fpath, cur_idx):
-        # only activate corrective annotation when images are after start of corrective mode
-        if self.corrective and cur_idx > self.corrective_idx:
+        # update self.corrective_idx to index for start of corrective fill
+        if self.start_corrective:
+            self.corrective_idx = cur_idx
+            self.start_corrective = False
+        if self.corrective and cur_idx >= self.corrective_idx:
             filled = im_utils.fill_corrective(self.scene.annot_pixmap, self.seg_pixmap)
         else:
             filled = im_utils.fill_fg_bg(self.scene.annot_pixmap)
-            # update self.corrective_idx to largest non-corrective index
-            if not self.corrective and cur_idx > self.corrective_idx:
-                self.corrective_idx = cur_idx
         self.scene.annot_pixmap = filled
         self.update_file(fpath)
 
@@ -1095,6 +1096,7 @@ class OnePainter(QtWidgets.QMainWindow):
         self.send_instruction('start_training', content)
 
     def start_corrective_fill(self):
+        self.start_corrective = True
         self.corrective = True
 
     def seg_checkbox_change(self, state):
