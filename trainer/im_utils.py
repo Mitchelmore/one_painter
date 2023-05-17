@@ -292,7 +292,7 @@ def post_process(segment, num):
         largest connected component(s), where small internal holes are filled in.
     """
     img = binary_dilation(segment, iterations=3)
-    img = largest(img, num)
     img = binary_erosion(img, iterations=3)
+    img = largest(img, num)
     img = binary_fill_holes(img)
     return img
