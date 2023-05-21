@@ -270,6 +270,10 @@ def load_image(photo_path):
         
     return photo
 
+struct = np.array([ [1,1,1],
+                    [1,1,1],
+                    [1,1,1] ])
+
 # Function for connected components on 2D numpy arrays, returns image with num-largest components
 def largest(im, num):
     img = np.zeros(im.shape) 
@@ -291,8 +295,8 @@ def post_process(segment, num):
     Output:
         largest connected component(s), where small internal holes are filled in.
     """
-    img = binary_dilation(segment, iterations=3)
-    img = binary_erosion(img, iterations=3)
+    img = binary_dilation(segment, iterations=4, structure=struct)
+    img = binary_erosion(img, iterations=4, structure=struct)
     img = largest(img, num)
     img = binary_fill_holes(img)
     return img
