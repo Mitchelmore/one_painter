@@ -138,6 +138,8 @@ def save_if_better(model_dir, cur_model, prev_model_path,
                    cur_f1, prev_f1):
     print('prev f1', str(round(prev_f1, 5)).ljust(7, '0'),
           'cur f1', str(round(cur_f1, 5)).ljust(7, '0'))
+    if np.isnan(prev_f1):
+        prev_f1 = 0.0
     if cur_f1 > prev_f1:
         prev_model_fname = os.path.basename(prev_model_path)
         prev_model_num = int(prev_model_fname.split('_')[0])
