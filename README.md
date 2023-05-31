@@ -1,3 +1,25 @@
+## OnePainter
+
+I made some customised changes to the original RootPainter code, which I call OnePainter. OnePainter is intended for interactive segmentation of single, solid regions, such as tumours, in 2D images. It is based on RootPainter, but uses automatic filling-in/out to make dense annotations, includes some extra functions, and the segmentation result includes an option to show only the largest predicted region. 
+
+Changes with respect to RootPainter:
+
+User paints a perimeter around the background and foreground (it doesn't matter if there are other marks, as long as they are in the same color as the delineating perimeter), and the software automatically flood-fills foreground to the outer red perimeter, and background to the inner-most green perimeter when the user saves and moves on to the next image. If only green is used, the whole annotation is saved as green (e.g. if no tumor is present). The user can optionally click on a 'Save' button to see the auto-fill before moving to the next image.
+
+The user can optionally start a corrective-fill mode, which only labels false-positive segmentation as background, rather than flood-filling the background. Otherwise, it fills as above.
+
+When the eraser-brush is active, the user can press the ALT-key and click on an annotation to unfill color in the whole selected component.
+
+When the brush color is red and the segmentation is visible, the user can press the ALT-key and click on a segmentation to fill it with foreground color. If the user has drawn green on the segmentation, this function will only fill the selected segmentation up to the green border.
+
+After training is complete, the 'Segment Folder' command has an option to return only the closed, filled-in largest component. The user can also choose to return the two largest components. The default is all segmented regions (the RootPainter default).
+
+The 'Extract composites' option always returns vertically stacking of image and composite, and the segmentation in the composite is transparent.
+
+The 'Extra menu' now includes 'Convert segmentations' and 'Convert classical B/W masks' options for pre- and post-processing, e.g.  classical B/W masks can be converted to segmentations or annotations for use in OnePainter. The 'Correct annotations' was also modified to include different output options.
+
+The code is based on RootPainter (github.com/Abe404/root\_painter) up to April 1, 2023, and includes code changes from RootPainter that enable extraction of annotation times.
+______________
 ## RootPainter
 
 RootPainter is a GUI-based software tool for the rapid training of deep neural networks for use in biological image analysis. 
